@@ -10,7 +10,7 @@ public class Score {
 	
 	
 	public static void init(){
-		font = new BitmapFont(Gdx.files.internal("Aileron-Regular.otf"));
+		font = new BitmapFont(Gdx.files.internal("Aileron-Regular.fnt"));
 		score = 0;
 	}
 	
