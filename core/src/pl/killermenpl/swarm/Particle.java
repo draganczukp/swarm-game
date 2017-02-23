@@ -10,9 +10,9 @@ import pl.killermenpl.swarm.lib.Libs;
 public class Particle {
 	public Vector2 pos, vel, acc;
 	private Vector2 _vel;
-	private Vector2 target;
+	public Vector2 target;
 	private static float r = 4f;
-	private static float maxSpeed = 5;
+	public static float maxSpeed = 5;
 	private static float maxForce = 1;
 	public float ttl = 5;
 	private Color c;
@@ -64,9 +64,15 @@ public class Particle {
 		float d = desired.len();
 
 		float speed = maxSpeed;
+		
+		if(d < r*2){
+			SwarmGame.hit = true;
+			return Vector2.Zero;
+		}
+			
 
 		if (d < 500) {
-			speed = Libs.map(d, 0, 500, 0, maxSpeed);
+			speed = Libs.map(d, 0, 500, 3, maxSpeed);
 		}
 		desired.setLength(speed);
 		Vector2 steer = Vector2.Y.set(desired).sub(vel);

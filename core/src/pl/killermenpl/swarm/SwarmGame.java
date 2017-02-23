@@ -1,59 +1,85 @@
 package pl.killermenpl.swarm;
 
-import java.util.ArrayList;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-public class SwarmGame extends ApplicationAdapter {
+import pl.killermenpl.swarm.lib.Libs;
+
+public class SwarmGame extends ApplicationAdapter implements InputProcessor{
 	
 	public static Array<Vector2> targets;
-	public static float targetChance = 0.1f;
+	public static float targetChance;
 	
 	public static Array<Particle> particles;
-	public static float particleChance = 1;
+	public static float particleChance;
 	
 	public static final Color background = new Color(.2f,.2f,.2f,1);
 	public static Vector2 mouse;
 	private ShapeRenderer sr;
+	
+	public SpriteBatch batch;
+	
+	public static boolean hit;
+	private BitmapFont fnt;
+	
+	
 	@Override
 	public void create () {
-
+		targetChance = 0.3f;
+		particleChance = 2;
+		
+		Gdx.input.setInputProcessor(this);
+		batch = new SpriteBatch();
+		
 		sr = new ShapeRenderer();
 		
 		targets = new Array<Vector2>();
-		targets.add(new Vector2(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight())));
+		targets.add(new Vector2(MathUtils.random(Gdx.graphics.getWidth()-200)+100, MathUtils.random(Gdx.graphics.getHeight()-100)+50));
 		
 		particles = new Array<Particle>();
-		particles.add(new Particle(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight()), targets.random()));
-		
+		spawnParticle();
 		mouse = new Vector2();
+		
+		Score.init();
+		
+		fnt  = new BitmapFont();
+		
+		hit = false;
+		
 	}
 
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(background.r, background.g, background.b, background.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		if(hit){
+			batch.begin();
+			fnt.draw(batch, "GAME OVER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+			batch.end();
+			
+			return;
+		}
+		
 		mouse.set(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY());
 		
 		if(MathUtils.randomBoolean(targetChance/100)){
-			targets.add(new Vector2(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight())));
+			spawnTarget();
 		}
 		
 		if(MathUtils.randomBoolean(particleChance/100)){
-			if(targets.random()!=null)
-				particles.add(new Particle(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight()), targets.random()));
+			spawnParticle();
 		}
 		
 		for(Particle p : particles){
@@ -68,7 +94,7 @@ public class SwarmGame extends ApplicationAdapter {
 		sr.begin();
 		sr.set(ShapeType.Filled);
 
-		sr.setColor(Color.GREEN);
+		sr.setColor(Color.BLUE);
 		for(Vector2 t : targets){
 			sr.circle(t.x, t.y, 4);
 		}
@@ -79,13 +105,109 @@ public class SwarmGame extends ApplicationAdapter {
 		}
 		
 		
-		sr.setColor(Color.YELLOW);
-		sr.circle(mouse.x, mouse.y, 5);
+//		sr.setColor(Color.YELLOW);
+//		sr.circle(mouse.x, mouse.y, 5);
 		sr.end();
+		
+		Score.update();
+		
+		batch.begin();
+		Score.draw(batch);
+		batch.end();
+		
+		
+		Particle.maxSpeed = Libs.map(Score.score, 0, 1000, 10, 2);
+	}
+
+	private void spawnParticle() {
+		if(targets.random()==null)
+		return;
+		
+		Particle p;
+		float dist;
+		do{
+			p =new Particle(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight()), targets.random());
+			dist = p.pos.dst(p.target);
+		}while(dist < 100);
+		particles.add(p);
+	}
+	
+	
+	private void spawnTarget(){
+		if(targets.random()==null){
+			targets.add(new Vector2(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight())));
+			return;
+		}
+
+		Vector2 target;
+		float distance = Float.MAX_VALUE;
+		do{
+			target = new Vector2(MathUtils.random(Gdx.graphics.getWidth()), MathUtils.random(Gdx.graphics.getHeight()));
+			
+			for(Vector2 t : targets){
+				float d = target.dst(t);
+				if(d < distance){
+					distance = d;
+				}
+			}
+			
+		}while(distance >= 100);
+		
+		targets.add(target);
 	}
 	
 	@Override
 	public void dispose () {
 		
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		if(keycode==Keys.F5){
+			this.create();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
