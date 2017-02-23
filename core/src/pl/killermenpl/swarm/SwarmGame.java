@@ -53,7 +53,7 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor{
 		
 		Score.init();
 		
-		fnt  = new BitmapFont();
+		fnt  = new BitmapFont(Gdx.files.internal("Aileron-Regular.otf"));
 		
 		hit = false;
 		
