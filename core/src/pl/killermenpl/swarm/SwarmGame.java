@@ -70,9 +70,9 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 			GlyphLayout go = new GlyphLayout(fnt, "Game Over");
 
 			fnt.draw(batch, go, Gdx.graphics.getWidth() / 2 - (go.width / 2),
-					Gdx.graphics.getHeight() / 2 + (go.height) );
-			
-			GlyphLayout f5 = new GlyphLayout(fnt, "Press F5 to restart"); 
+					Gdx.graphics.getHeight() / 2 + (go.height));
+
+			GlyphLayout f5 = new GlyphLayout(fnt, "Press any key to restart");
 			fnt.draw(batch, f5, Gdx.graphics.getWidth() / 2 - (f5.width / 2),
 					Gdx.graphics.getHeight() / 2 - (f5.height / 2));
 			batch.end();
@@ -168,9 +168,9 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if (keycode == Keys.F5) {
-			this.create();
-		}
+
+		this.create();
+
 		return false;
 	}
 
