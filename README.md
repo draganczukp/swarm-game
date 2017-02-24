@@ -11,6 +11,10 @@ Build for HTML5/GWT:
 ./gradlew html:dist
 ```
 
+# TODO
+* Display score in Game Over screen
+* Score Board - stored in MySQL (Name + Score)
+
 # Licence
 MIT Licence
 See LICENCE for details.
