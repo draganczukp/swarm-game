@@ -72,9 +72,12 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 			fnt.draw(batch, go, Gdx.graphics.getWidth() / 2 - (go.width / 2),
 					Gdx.graphics.getHeight() / 2 + (go.height));
 
+			GlyphLayout sc = new GlyphLayout(fnt, "Your score: "+((long)Math.floor(Score.score)));
+			fnt.draw(batch, sc, Gdx.graphics.getWidth() / 2 - (sc.width/2), Gdx.graphics.getHeight()/2-sc.height/2);
+			
 			GlyphLayout f5 = new GlyphLayout(fnt, "Press any key to restart");
 			fnt.draw(batch, f5, Gdx.graphics.getWidth() / 2 - (f5.width / 2),
-					Gdx.graphics.getHeight() / 2 - (f5.height / 2));
+					Gdx.graphics.getHeight() / 2 - (f5.height * 2));
 			batch.end();
 
 			return;
