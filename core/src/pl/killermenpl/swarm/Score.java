@@ -1,11 +1,18 @@
 package pl.killermenpl.swarm;
 
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import jsinterop.annotations.JsProperty;
+
+
 public class Score {
 	public static BitmapFont font;
+	
+	
+	@JsProperty(namespace="$wnd.score", name="score")
 	public static float score = 0;
 	
 	

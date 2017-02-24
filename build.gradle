@@ -55,6 +55,8 @@ project(":html") {
         compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
         compile "net.dermetfan.libgdx-utils:libgdx-utils:0.13.4:sources"
         compile "com.github.czyzby:gdx-kiwi:1.8.1.9.4:sources"
+       
+        
     }
 }
 
@@ -66,6 +68,8 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "net.dermetfan.libgdx-utils:libgdx-utils:0.13.4"
         compile "com.github.czyzby:gdx-kiwi:1.8.1.9.4"
+        compile "com.google.jsinterop:jsinterop:1.0.1"
+        compile "com.google.jsinterop:jsinterop-annotations:1.0.1"
     }
 }
 
