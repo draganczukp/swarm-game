@@ -19,9 +19,11 @@ import pl.killermenpl.swarm.lib.Libs;
 
 public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 
+	public static float maxTargets;
 	public static Array<Vector2> targets;
 	public static float targetChance;
 
+	public static float maxParticles;
 	public static Array<Particle> particles;
 	public static float particleChance;
 
@@ -34,10 +36,15 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 	public static boolean hit;
 	private BitmapFont fnt;
 
+	public static boolean cheatMode = true;
+
 	@Override
 	public void create() {
 		targetChance = 0.3f;
+		maxTargets = 5;
+
 		particleChance = 2;
+		maxParticles = 10;
 
 		Gdx.input.setInputProcessor(this);
 		batch = new SpriteBatch();
@@ -72,9 +79,10 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 			fnt.draw(batch, go, Gdx.graphics.getWidth() / 2 - (go.width / 2),
 					Gdx.graphics.getHeight() / 2 + (go.height));
 
-			GlyphLayout sc = new GlyphLayout(fnt, "Your score: "+((long)Math.floor(Score.score)));
-			fnt.draw(batch, sc, Gdx.graphics.getWidth() / 2 - (sc.width/2), Gdx.graphics.getHeight()/2-sc.height/2);
-			
+			GlyphLayout sc = new GlyphLayout(fnt, "Your score: " + ((long) Math.floor(Score.score)));
+			fnt.draw(batch, sc, Gdx.graphics.getWidth() / 2 - (sc.width / 2),
+					Gdx.graphics.getHeight() / 2 - sc.height / 2);
+
 			GlyphLayout f5 = new GlyphLayout(fnt, "Press any key to restart");
 			fnt.draw(batch, f5, Gdx.graphics.getWidth() / 2 - (f5.width / 2),
 					Gdx.graphics.getHeight() / 2 - (f5.height * 2));
@@ -113,7 +121,14 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 			p.draw(sr);
 		}
 
-		// sr.setColor(Color.YELLOW);
+		if (cheatMode) {
+			Vector2 cheat = Libs.avg(targets);
+			sr.setColor(Color.YELLOW);
+			sr.set(ShapeType.Line);
+			sr.circle(cheat.x, cheat.y, 100);
+			sr.set(ShapeType.Point);
+			sr.point(cheat.x, cheat.y, 0);
+		}
 		// sr.circle(mouse.x, mouse.y, 5);
 		sr.end();
 
@@ -124,6 +139,13 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 		batch.end();
 
 		Particle.maxSpeed = Libs.map(Score.score, 0, 1000, 10, 2);
+
+		maxParticles += Gdx.graphics.getDeltaTime() / 10;
+		maxTargets += Gdx.graphics.getDeltaTime() / 20;
+
+		particleChance += Gdx.graphics.getDeltaTime() / 20;
+		targetChance += Gdx.graphics.getDeltaTime() / 80;
+
 	}
 
 	private void spawnParticle() {
@@ -138,6 +160,9 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 			dist = p.pos.dst(p.target);
 		} while (dist < 100);
 		particles.add(p);
+		if (particles.size > MathUtils.floor(maxParticles))
+			particles.removeIndex(0);
+
 	}
 
 	private void spawnTarget() {
@@ -162,6 +187,9 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 		} while (distance >= 100);
 
 		targets.add(target);
+		if (targets.size > maxTargets)
+			targets.removeIndex(0);
+
 	}
 
 	@Override
@@ -171,8 +199,10 @@ public class SwarmGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-
-		this.create();
+		if (keycode == Keys.C)
+			cheatMode = !cheatMode;
+		else
+			this.create();
 
 		return false;
 	}
